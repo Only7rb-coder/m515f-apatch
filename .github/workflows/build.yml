@@ -13,30 +13,19 @@ jobs:
       - name: Update dependence
         run: |
           sudo apt update
-          sudo apt install build-essential bc flex bison libncurses5-dev libssl-dev git ccache python2 libtinfo5 curl -y
+          sudo apt install build-essential bc flex bison libncurses5-dev libssl-dev git ccache python2 libtinfo5 -y
           sudo rm -rf /usr/bin/python
           sudo ln -s /usr/bin/python2.7 /usr/bin/python
           python --version
           
       - name: Checkout Repo
         uses: actions/checkout@v4
-
-      - name: install kernelsu
-        run: |
-          curl -LSs "https://raw.githubusercontent.com/tiann/KernelSU/main/kernel/setup.sh" | bash -s "v0.9.5"
-          KSU_VERSION=$(cd KernelSU && expr $(/usr/bin/git rev-list --count HEAD) + 10200)
-          echo $KSU_VERSION
-          bash ./ksu.sh
-          cd KernelSU
-          sed -i "s/LINUX_VERSION_CODE < KERNEL_VERSION(4, 10, 0) ||/1 || /" kernel/core_hook.c
-          sed -i "s/LINUX_VERSION_CODE < KERNEL_VERSION(4, 10, 0) ||/1 || /" kernel/kernel_compat.c
-          sed -i "s/LINUX_VERSION_CODE < KERNEL_VERSION(4, 10, 0) ||/1 || /" kernel/kernel_compat.h
         
       - name: install gcc、clang
         run: |
           git clone https://github.com/LineageOS/android_prebuilts_gcc_linux-x86_aarch64_aarch64-linux-android-4.9  toolchain/gcc/linux-x86/aarch64/aarch64-linux-android-4.9
           git clone https://github.com/proprietary-stuff/llvm-arm-toolchain-ship-10.0 toolchain/llvm-arm-toolchain-ship/10.0
-
+ 
       - name: build kernel
         run: |
           args="-j$(nproc --all) \
@@ -48,7 +37,7 @@ jobs:
           	export DTC_EXT=dtc
             LLVM=1
             LLVM_IAS=1
-            make ${args} m51_eur_open_defconfig 
+            make ${args} m51_eur_open_defconfig
             make ${args} 
 
       - name: build ak3
